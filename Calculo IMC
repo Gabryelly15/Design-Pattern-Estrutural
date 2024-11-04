@@ -1,1 +1,100 @@
+public interface IMC {
+    double calcular();
+    String status();
+}
+
+public class Pessoa implements IMC {
+    private double peso;
+    private double altura;
+
+    public Pessoa(double peso, double altura) {
+        this.peso = peso;
+        this.altura = altura;
+    }
+
+    @Override
+    public double calcular() {
+        if (altura <= 0) {
+            throw new IllegalArgumentException("Altura deve ser maior que zero.");
+        }
+        return peso / (altura * altura);
+    }
+
+    @Override
+    public String status() {
+        double imc = calcular();
+        if (imc < 17) {
+            return "Muito abaixo do peso";
+        } else if (imc >= 17 && imc <= 18.49) {
+            return "Abaixo do peso";
+        } else if (imc >= 18.50 && imc <= 24.99) {
+            return "Peso normal";
+        } else if (imc >= 25 && imc <= 29.99) {
+            return "Acima do peso";
+        } else if (imc >= 30 && imc <= 34.99) {
+            return "Obesidade 1";
+        } else if (imc >= 35 && imc <= 39.99) {
+            return "Obesidade 2";
+        } else {
+            return "Obesidade 3";
+        }
+    }
+}
+
+public abstract class IMCDecorator implements IMC {
+    protected IMC imc;
+
+    public IMCDecorator(IMC imc) {
+        this.imc = imc;
+    }
+}
+
+public class IMCComAvisoDecorator extends IMCDecorator {
+    public IMCComAvisoDecorator(IMC imc) {
+        super(imc);
+    }
+
+    @Override
+    public double calcular() {
+        double resultado = imc.calcular();
+        exibirAviso(resultado);
+        return resultado;
+    }
+
+    private void exibirAviso(double imc) {
+        System.out.println("Calculando IMC...");
+        System.out.printf("O seu índice de massa corporal é: %.2f%n", imc);
+    }
+
+    @Override
+    public String status() {
+        return imc.status();
+    }
+}
+
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Digite seu peso: ");
+        double peso = scanner.nextDouble();
+
+        System.out.println("Digite sua altura: ");
+        double altura = scanner.nextDouble();
+
+        // Criar a pessoa
+        IMC pessoa = new Pessoa(peso, altura);
+
+        // Decorar com o aviso
+        IMC pessoaComAviso = new IMCComAvisoDecorator(pessoa);
+
+        // Calcular e exibir o resultado
+        double imc = pessoaComAviso.calcular();
+        System.out.println("Sua situação corporal é: " + pessoaComAviso.status());
+
+        scanner.close();
+    }
+}
 
